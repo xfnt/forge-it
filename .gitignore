@@ -1,0 +1,19 @@
+# IDEA
+.idea/
+.idea/.gitignore
+.idea/automation-tools.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/workspace.xml
+
+# Gradle
+gradle/
+.gradle/
+gradlew.bat
+gradlew
+
+# Build Dirs
+/**/target/
+/**/build/
+/**/out/
