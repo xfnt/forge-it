@@ -1,7 +1,14 @@
 package io.github.xfnt.construct;
 
+import io.github.xfnt.Generated;
+import io.github.xfnt.annotation.ForgeTag;
+
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Oven<T> {
     private final Class<T> source;
@@ -14,7 +21,32 @@ public class Oven<T> {
         Mold<T> mold = new Mold<>();
 
         mold.setInstance(ovenInstance());
-        return null;
+        mold.setGeneratedFieldsMolds(findGeneratedFieldsMolds());
+
+        return mold;
+    }
+
+    private Map<Class<? extends Generated<?, ? extends Annotation>>, Map<Field, Annotation>> findGeneratedFieldsMolds() {
+        Map<Class<? extends Generated<?, ? extends Annotation>>, Map<Field, Annotation>> genFieldAnnotationMold = new HashMap<>();
+        Field[] fields = source.getDeclaredFields();
+
+        for (Field field : fields) {
+            Annotation[] annotations = field.getDeclaredAnnotations();
+            for (Annotation annotation : annotations) {
+                Class<? extends Annotation> annotationType = annotation.annotationType();
+
+                if (annotationType.isAnnotationPresent(ForgeTag.class)) {
+                    ForgeTag forgeTag = annotationType.getAnnotation(ForgeTag.class);
+                    Class<? extends Generated<?, ? extends Annotation>> generatorClass = forgeTag.generatedClass();
+
+                    genFieldAnnotationMold
+                            .computeIfAbsent(generatorClass, k -> new HashMap<>())
+                            .put(field, annotation);
+                }
+            }
+        }
+
+        return genFieldAnnotationMold;
     }
 
     private T ovenInstance() {

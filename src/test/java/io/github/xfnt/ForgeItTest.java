@@ -9,6 +9,6 @@ public class ForgeItTest {
     public void shouldReturnForgedObject() {
         TestObject testObject = ForgeIt.forge(TestObject.class);
 
-        System.out.println("");
+        System.out.println(testObject.toString());
     }
 }

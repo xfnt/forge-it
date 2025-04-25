@@ -1,10 +1,14 @@
 package io.github.xfnt.construct;
 
-import java.util.List;
+import io.github.xfnt.Generated;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.util.Map;
 
 public class Mold<T> {
     private T instance;
-    private List<GeneratedFieldsMold> generatedFieldsMolds;
+    private Map<Class<? extends Generated<?, ? extends Annotation>>, Map<Field, Annotation>> generatedFieldsMolds;
 
     public T getInstance() {
         return instance;
@@ -14,11 +18,11 @@ public class Mold<T> {
         this.instance = instance;
     }
 
-    public List<GeneratedFieldsMold> getGeneratedFieldsMolds() {
+    public Map<Class<? extends Generated<?, ? extends Annotation>>, Map<Field, Annotation>> getGeneratedFieldsMolds() {
         return generatedFieldsMolds;
     }
 
-    public void setGeneratedFieldsMolds(List<GeneratedFieldsMold> generatedFieldsMolds) {
+    public void setGeneratedFieldsMolds(Map<Class<? extends Generated<?, ? extends Annotation>>, Map<Field, Annotation>> generatedFieldsMolds) {
         this.generatedFieldsMolds = generatedFieldsMolds;
     }
 }

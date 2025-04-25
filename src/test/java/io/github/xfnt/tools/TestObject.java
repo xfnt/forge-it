@@ -2,8 +2,10 @@ package io.github.xfnt.tools;
 
 import io.github.xfnt.annotation.Source;
 
-@Source
+//@Source
 public class TestObject {
+
+    @FakeInt
     private Integer number;
 
     @FakeString
