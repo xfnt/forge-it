@@ -8,12 +8,21 @@ ForgeIt — это минималистичный фреймворк для ге
 ## Пример
 
 ```java
-<@PlaceForAnnotation>
+@Forgeable
 public class User {
 
-    <@PlaceForAnnotation>
+    @CustomAnnotation(generator = CustomGenerator.class)
     private String login;
 
-    <@PlaceForAnnotation>
+    @CustomAnnotation(generator = CustomGenerator.class)
     private LocalDate birthday;
 }
+```
+```java
+public class MyTest {
+    @Test
+    public void test() {
+        User user = ForgeIt.forge(User.class);
+    }
+}
+```
