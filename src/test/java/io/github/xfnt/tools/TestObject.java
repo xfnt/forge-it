@@ -1,8 +1,8 @@
 package io.github.xfnt.tools;
 
-import io.github.xfnt.annotation.Source;
+import io.github.xfnt.annotation.Template;
 
-//@Source
+@Template
 public class TestObject {
 
     @FakeInt
@@ -10,6 +10,22 @@ public class TestObject {
 
     @FakeString
     private String line;
+
+    public Integer getNumber() {
+        return number;
+    }
+
+    public void setNumber(Integer number) {
+        this.number = number;
+    }
+
+    public String getLine() {
+        return line;
+    }
+
+    public void setLine(String line) {
+        this.line = line;
+    }
 
     @Override
     public String toString() {
