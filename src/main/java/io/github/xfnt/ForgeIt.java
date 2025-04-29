@@ -1,7 +1,7 @@
 package io.github.xfnt;
 
-import io.github.xfnt.annotation.ForgeTag;
 import io.github.xfnt.annotation.Template;
+import io.github.xfnt.util.GeneratorUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -29,46 +29,54 @@ public class ForgeIt {
     }
 
     private static <T> void checkTemplateAnnotationOnClass(Class<T> template) {
-        if(!template.isAnnotationPresent(Template.class)) {
-            throw new RuntimeException("Annotation @Template not found!");
+        if (!template.isAnnotationPresent(Template.class)) {
+            throw new RuntimeException(
+                    "Class '" + template.getName() + "' must be annotated with @Template to be used with ForgeIt."
+            );
         }
     }
 
     private static <T> T createInstance(Class<T> template) {
         try {
             Constructor<T> constructor = template.getDeclaredConstructor();
-            if(constructor.canAccess(null)) {
-                constructor.setAccessible(true);
-            }
+            constructor.setAccessible(true);
             return constructor.newInstance();
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("Class should have default constructor!", e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(
+                    "Cannot instantiate class '" + template.getName() + "'. " +
+                    "It must have a no-argument constructor to be used with ForgeIt.",
+                    e
+            );
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException(
+                    "Failed to instantiate class '" + template.getName() + "'. " +
+                    "Ensure it is not abstract and the constructor is accessible.",
+                    e
+            );
         }
     }
 
     private static <T, A extends Annotation> Map<Generated<?, A>, Map<Field, Annotation>> buildDependencyGenFieldAnnotation(Class<T> template) {
-        Map<Generated<?, A>, Map<Field, Annotation>> map = new HashMap<>();
-        Field[] fields = template.getDeclaredFields();
+        Map<Generated<?, A>, Map<Field, Annotation>> result = new HashMap<>();
 
-        for(Field field : fields) {
-            Annotation[] annotations = field.getDeclaredAnnotations();
-            for(Annotation annotation : annotations) {
-                if(annotation.annotationType().isAnnotationPresent(ForgeTag.class)) {
-                    ForgeTag forgeTag = annotation.annotationType().getAnnotation(ForgeTag.class);
-                    Generated<?, A> generator = (Generated<?, A>) createInstance(forgeTag.generatedClass());
-                    map.computeIfAbsent(generator, key -> new HashMap<>()).put(field, annotation);
+        for (Field field : template.getDeclaredFields()) {
+            for (Annotation annotation : field.getDeclaredAnnotations()) {
+                Class<? extends Annotation> annotationType = annotation.annotationType();
+
+                if (annotationType.isAnnotationPresent(io.github.xfnt.annotation.ForgeTag.class)) {
+                    var forgeTag = annotationType.getAnnotation(io.github.xfnt.annotation.ForgeTag.class);
+                    var generator = GeneratorUtils.<A>getGenerator(forgeTag.generatedClass());
+
+                    result
+                            .computeIfAbsent(generator, g -> new HashMap<>()).put(field, annotation);
                 }
             }
         }
-        return map;
+
+        return result;
     }
 
+    @SuppressWarnings("unchecked")
     private static <T, A extends Annotation> void generateAndInjectData(T instance,  Map<Generated<?, A>, Map<Field, Annotation>> dependencyTree) {
         for(Map.Entry<Generated<?, A>, Map<Field, Annotation>> entry : dependencyTree.entrySet()) {
             Generated<?, A> generator = entry.getKey();
@@ -80,7 +88,12 @@ public class ForgeIt {
                 try {
                     field.set(instance, generator.generate(annotation));
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException(
+                            "Failed to inject generated value into field '" + field.getName() +
+                                    "' of class '" + instance.getClass().getName() + "' using generator '" +
+                                    generator.getClass().getSimpleName() + "'.",
+                            e
+                    );
                 }
             }
         }

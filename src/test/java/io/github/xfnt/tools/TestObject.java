@@ -15,21 +15,13 @@ public class TestObject {
         return number;
     }
 
-    public void setNumber(Integer number) {
-        this.number = number;
-    }
-
     public String getLine() {
         return line;
     }
 
-    public void setLine(String line) {
-        this.line = line;
-    }
-
     @Override
     public String toString() {
-        return "MyObject{" +
+        return "TestObject{" +
                 "number=" + number +
                 ", line='" + line + '\'' +
                 '}';
