@@ -10,12 +10,14 @@ public class ForgeItTest {
     @Test
     public void shouldReturnForgedObject() {
         TestObject testObject = ForgeIt.forge(TestObject.class);
+
         assertNotNull(testObject);
     }
 
     @Test
     public void shouldReturnForgedObjectWithString() {
         TestObject testObject = ForgeIt.forge(TestObject.class);
+
         assertNotNull(testObject);
         assertEquals("This should be a random string.", testObject.getLine());
     }
@@ -23,8 +25,8 @@ public class ForgeItTest {
     @Test
     public void shouldReturnForgedObjectWithInteger() {
         TestObject testObject = ForgeIt.forge(TestObject.class);
-        assertNotNull(testObject);
 
+        assertNotNull(testObject);
         assertTrue(testObject.getNumber() > 10 && testObject.getNumber() < 15);
     }
 }
