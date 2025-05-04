@@ -1,5 +1,7 @@
-package io.github.xfnt.tools;
+package io.github.xfnt.dto;
 
+import io.github.xfnt.annotation.FakeInt;
+import io.github.xfnt.annotation.FakeString;
 import io.github.xfnt.annotation.Template;
 
 @Template

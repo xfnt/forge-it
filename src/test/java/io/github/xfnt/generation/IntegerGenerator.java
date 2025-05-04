@@ -1,11 +1,12 @@
-package io.github.xfnt.tools;
+package io.github.xfnt.generation;
 
 import io.github.xfnt.Generated;
+import io.github.xfnt.annotation.FakeInt;
 
 import java.util.Random;
 
 public class IntegerGenerator implements Generated<Integer, FakeInt> {
-    private Random random = new Random();
+    private final Random random = new Random();
 
     @Override
     public Integer generate(FakeInt annotation) {

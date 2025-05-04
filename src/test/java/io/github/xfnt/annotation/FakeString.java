@@ -1,6 +1,6 @@
-package io.github.xfnt.tools;
+package io.github.xfnt.annotation;
 
-import io.github.xfnt.annotation.ForgeTag;
+import io.github.xfnt.generation.StringGenerator;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

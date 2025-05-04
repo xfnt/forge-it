@@ -1,6 +1,7 @@
-package io.github.xfnt.tools;
+package io.github.xfnt.generation;
 
 import io.github.xfnt.Generated;
+import io.github.xfnt.annotation.FakeString;
 
 public class StringGenerator implements Generated<String, FakeString> {
 
