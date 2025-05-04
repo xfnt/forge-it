@@ -11,7 +11,7 @@ public final class GeneratorUtils {
     private static final Map<Class<?>, Generated<?, ?>> generatorCache = new ConcurrentHashMap<>();
 
     private GeneratorUtils() {
-        throw new RuntimeException("Utility class");
+        throw new UnsupportedOperationException("Utility class");
     }
 
     @SuppressWarnings("unchecked")

@@ -1,6 +1,10 @@
 package io.github.xfnt;
 
 import io.github.xfnt.annotation.Template;
+import io.github.xfnt.exception.ForgeGenerationException;
+import io.github.xfnt.exception.ForgeInjectionException;
+import io.github.xfnt.exception.ForgeInstantiationException;
+import io.github.xfnt.exception.ForgeTemplateException;
 import io.github.xfnt.util.GeneratorUtils;
 
 import java.lang.annotation.Annotation;
@@ -13,6 +17,7 @@ import java.util.Map;
 public class ForgeIt {
 
     public static <T, A extends Annotation> T forge(Class<T> template) {
+
         // Step 1. Check annotation @Template
         checkTemplateAnnotationOnClass(template);
 
@@ -25,14 +30,12 @@ public class ForgeIt {
         // Step 4. Generate and inject data in field
         generateAndInjectData(instance, dependencyTree);
 
-       return instance;
+        return instance;
     }
 
     private static <T> void checkTemplateAnnotationOnClass(Class<T> template) {
         if (!template.isAnnotationPresent(Template.class)) {
-            throw new RuntimeException(
-                    "Class '" + template.getName() + "' must be annotated with @Template to be used with ForgeIt."
-            );
+            throw new ForgeTemplateException(template);
         }
     }
 
@@ -41,18 +44,8 @@ public class ForgeIt {
             Constructor<T> constructor = template.getDeclaredConstructor();
             constructor.setAccessible(true);
             return constructor.newInstance();
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(
-                    "Cannot instantiate class '" + template.getName() + "'. " +
-                    "It must have a no-argument constructor to be used with ForgeIt.",
-                    e
-            );
-        } catch (InvocationTargetException | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(
-                    "Failed to instantiate class '" + template.getName() + "'. " +
-                    "Ensure it is not abstract and the constructor is accessible.",
-                    e
-            );
+        } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
+            throw new ForgeInstantiationException(template, e);
         }
     }
 
@@ -67,8 +60,7 @@ public class ForgeIt {
                     var forgeTag = annotationType.getAnnotation(io.github.xfnt.annotation.ForgeTag.class);
                     var generator = GeneratorUtils.<A>getGenerator(forgeTag.generatedClass());
 
-                    result
-                            .computeIfAbsent(generator, g -> new HashMap<>()).put(field, annotation);
+                    result.computeIfAbsent(generator, g -> new HashMap<>()).put(field, annotation);
                 }
             }
         }
@@ -77,23 +69,22 @@ public class ForgeIt {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T, A extends Annotation> void generateAndInjectData(T instance,  Map<Generated<?, A>, Map<Field, Annotation>> dependencyTree) {
-        for(Map.Entry<Generated<?, A>, Map<Field, Annotation>> entry : dependencyTree.entrySet()) {
+    private static <T, A extends Annotation> void generateAndInjectData(T instance, Map<Generated<?, A>, Map<Field, Annotation>> dependencyTree) {
+        for (Map.Entry<Generated<?, A>, Map<Field, Annotation>> entry : dependencyTree.entrySet()) {
             Generated<?, A> generator = entry.getKey();
             Map<Field, Annotation> fieldAnnotationMap = entry.getValue();
-            for(Map.Entry<Field, Annotation> fieldAnnotationEntry : fieldAnnotationMap.entrySet()) {
+
+            for (Map.Entry<Field, Annotation> fieldAnnotationEntry : fieldAnnotationMap.entrySet()) {
                 Field field = fieldAnnotationEntry.getKey();
                 A annotation = (A) fieldAnnotationEntry.getValue();
                 field.setAccessible(true);
+
                 try {
                     field.set(instance, generator.generate(annotation));
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(
-                            "Failed to inject generated value into field '" + field.getName() +
-                                    "' of class '" + instance.getClass().getName() + "' using generator '" +
-                                    generator.getClass().getSimpleName() + "'.",
-                            e
-                    );
+                    throw new ForgeInjectionException(field, instance.getClass(), e);
+                } catch (Exception e) {
+                    throw new ForgeGenerationException(generator.getClass(), field, e);
                 }
             }
         }

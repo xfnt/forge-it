@@ -1,14 +1,13 @@
 # 🛠️ ForgeIt — Because Real Data is for Cowards
 
-**ForgeIt** — это минималистичный Java-фреймворк для генерации объектов с фейковыми, но правдоподобными данными.  
-Никакой магии, зависимостей или ломбоков. Только **аннотации, рефлексия** и твоя внутренняя потребность не писать руками тестовые данные.
+**ForgeIt** - is a minimalist Java framework for generating objects with fake but realistic data.
+No magic, no dependencies, no Lombok. Just **annotations, reflection**, and your inner need to avoid writing test data by hand.
 
-> 💡 Ты аннотируешь поля — мы куём объект.  
-> 🔥 Без зависимостей. Без боли. Ну ладно, немного боли всё же есть — это Java.
-
+> 💡 You annotate the fields — we forge the object.
+> 🔥 No dependencies. No pain. Well, maybe a little pain — it's Java after all.
 ---
 
-## 🚀 Пример использования
+## 🚀 Example Usage
 
 ```java
 @Template
@@ -31,14 +30,14 @@ public class MyTest {
 }
 ```
 
-### 🧩 Как это работает
-Ты помечаешь свой класс аннотацией @Template — это значит, что его можно "ковать". \
-На каждом поле указываешь кастомную аннотацию (например, @EmailField), которая знает, какой генератор данных использовать. \
-Аннотация @EmailField содержит мета-аннотацию @ForgeTag, которая указывает на реализацию Generated. \
-Внутри ForgeIt.forge() запускается магия: все поля собираются, связываются с генераторами, и в них втыкаются сгенерированные значения. \
+### 🧩 How It Works
+You annotate your class with @Template — this means it can be "forged".
+On each field, you specify a custom annotation (for example, @EmailField), which knows which data generator to use.
+The @EmailField annotation contains the meta-annotation @ForgeTag, which points to the implementation of Generated.
+Inside ForgeIt.forge(), the magic happens: all fields are collected, linked to generators, and generated values are injected into them.
 
-### 🛠 Создание своей аннотации
-Каждая пользовательская аннотация должна быть помечена @ForgeTag, указывающей, какой генератор данных использовать:
+### 🛠 Creating Your Own Annotation
+Each custom annotation must be marked with @ForgeTag, which specifies which data generator to use:
 ```java
 @ForgeTag(generatedClass = EmailGenerator.class)
 @Retention(RetentionPolicy.RUNTIME)
@@ -46,7 +45,7 @@ public class MyTest {
 public @interface EmailField {}
 ```
 
-Хочешь поле с номером телефона? Пиши:
+Want a field with a phone number? Just write:
 ```java
 @ForgeTag(generatedClass = PhoneNumberGenerator.class)
 @Retention(RetentionPolicy.RUNTIME)
@@ -54,16 +53,15 @@ public @interface EmailField {}
 public @interface PhoneField {}
 ```
 
-⚙️ Создание генератора
-Все генераторы реализуют интерфейс:
-
+⚙️ Creating a Generator
+All generators implement the Generated interface:
 ```java
 public interface Generated<T, A extends Annotation> {
     T generate(A annotation);
 }
 ```
 
-Пример генератора для @EmailField:
+Example Generator for @EmailField:
 ```java
 public class EmailGenerator implements Generated<String, EmailField> {
 
@@ -74,7 +72,7 @@ public class EmailGenerator implements Generated<String, EmailField> {
 }
 ```
 
-Пример генератора для @DateField:
+Example Generator for @DateField:
 ```java
 public class DateGenerator implements Generated<LocalDate, DateField> {
 
@@ -85,8 +83,8 @@ public class DateGenerator implements Generated<LocalDate, DateField> {
 }
 ```
 
-### 🪜 Мини-инструкция по созданию аннотаций и генераторов
-Создай аннотацию:
+### 🪜 Mini-Guide to Creating Annotations and Generators
+- Create the Annotation:
 ```java
 @ForgeTag(generatedClass = YourGenerator.class)
 @Retention(RUNTIME)
@@ -94,7 +92,7 @@ public class DateGenerator implements Generated<LocalDate, DateField> {
 public @interface YourCustomField {}
 ```
 
-Напиши генератор:
+- Write a generator:
 ```java
 public class YourGenerator implements Generated<SomeType, YourCustomField> {
     public SomeType generate(YourCustomField annotation) {
@@ -103,7 +101,7 @@ public class YourGenerator implements Generated<SomeType, YourCustomField> {
 }
 ```
 
-Аннотируй поле в классе с @Template:
+- Annotate the field in the class with @Template:
 ```java
 @Template
 public class Something {
@@ -112,18 +110,12 @@ public class Something {
 }
 ```
 
-Позови ForgeIt:
+- Call ForgeIt:
 ```java
 Something something = ForgeIt.forge(Something.class);
 ```
 
-### 🤝 Лицензия
-MIT. Используй, адаптируй, продавай, вини нас при баге — но с хорошим тоном.
+### 🤝 License
+MIT.  Use, adapt, sell, blame us for bugs — but with good manners.
 
 ---
-
-
-
-
-
-
